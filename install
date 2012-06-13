@@ -51,8 +51,11 @@ function purp {	echo -e "\e[01;35m$*\e[00m" ;}
 function fail {	echo -e "\e[01;31mNO\e[00m";}
 function success {	echo -e "\e[00;32mOK\e[00m";}
 
-
 export RPIMC_PATH="$RPIMC_PATH"
+
+
+
+
 
 ################################################################################
 ###   M A I N   I N S T A L L E R   S C R I P T                                #
@@ -82,6 +85,9 @@ require apache2
 require php5
 require fusesmb
 echo
+
+
+
 
 # GET NESCESARY FILES AND EXTRACT TO THE CORRECT PLACES 
 purp " :: INSTALLING INTERFACE"
@@ -115,7 +121,7 @@ fi
 
 
 # SET UP APACHE TO SERVE THE CORRECT DIRECTORIES
-purp " :: SETTING UP APACHE (to do)"
+purp " :: SETTING UP APACHE "
 purp " ----------------------------------"
 
 # Generate a sites-available/default file for apache
@@ -137,7 +143,7 @@ echo "ServerName rPImc" | sudo tee -a /etc/apache2/httpd.conf >/dev/null
 
 
 # SET UP USER .profile WITH ALIASES & NETWORK MOUNT
-purp " :: SETTING UP USER ENVIRONMENT (to do)"
+purp " :: SETTING UP USER ENVIRONMENT "
 purp " ----------------------------------"
 pad "Adding startup scripts" 
 echo 'export RPIMC_PATH="'$RPIMC_PATH'"' | sudo tee -a /home/$USER/.profile >/dev/null
