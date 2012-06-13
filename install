@@ -36,7 +36,7 @@ function require {
 
 # COLOURED OUTPUT 
 function purp {	echo -e "\e[01;35m$*\e[00m" ;}
-function fail {	echo -e "\e[00;31mNO\e[00m";}
+function fail {	echo -e "\e[01;31mNO\e[00m";}
 function success {	echo -e "\e[00;32mOK\e[00m";}
 
 
