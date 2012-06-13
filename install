@@ -156,7 +156,8 @@ pad "Restarting apache service"
 sudo service apache2 restart >/dev/null && success
 
 pad "Setting runtime permissions"
-sudo chmod +x $RPIMC_PATH/runtime
-
+sudo chmod +x $RPIMC_PATH/runtime &&
+sudo chmod +x $RPIMC_PATH/rPImc.profile &&
+success
 
 echo
