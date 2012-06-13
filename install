@@ -155,5 +155,8 @@ sudo modprobe snd_bcm2835 & success
 pad "Restarting apache service" 
 sudo service apache2 restart >/dev/null && success
 
+pad "Setting runtime permissions"
+sudo chmod +x $RPIMC_PATH/runtime
+
 
 echo
