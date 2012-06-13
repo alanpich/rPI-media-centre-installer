@@ -99,7 +99,7 @@ if [ ! -e $RPIMC_PATH ]; then
 	pad "Installing source"
 	sudo mkdir $RPIMC_PATH >/dev/null &&
 	sudo chown $USER:$GROUP $RPIMC_PATH >/dev/null &&
-	git clone -q $GITURL $RPIMC_PATH && success
+	git clone -q $GITURL $RPIMC_PATH >/dev/null && success
 else
 	if [ ! -e $RPIMC_PATH/.git ]; then
 		pad "Installing source"
@@ -146,7 +146,7 @@ success
 
 # Mount network shares
 pad "Mounting network shares"
-sudo fusesmb $RPIMC_PATH/network -o allow_other nonempty && success
+sudo fusesmb $RPIMC_PATH/network -o allow_other -o nonempty && success
 
 # Enable sound over HDMI
 pad "Enabling HDMI sound"
