@@ -84,7 +84,7 @@ purp " :: INSTALLING INTERFACE"
 purp " ----------------------------------"
 
 # CREATE USER GROUP IF IT DOESNT EXISTS
-pad "Adding group $GROUP...          "
+pad "Adding group $GROUP"
 TMP=`egrep -i "^$GROUP" /etc/group`
 if [ $TMP = "" ]; then
 	sudo groupadd $GROUP
@@ -92,25 +92,25 @@ fi
 success
 
 # CREATE INSTALL DIRECTORY IF IT DOESNT EXIST
-pad "Checking install path...        "
+pad "Checking install path"
 if [ ! -e $RPIMC_PATH ]; then
 	sudo mkdir $RPIMC_PATH
 fi
 success
 
 # CHOWN INSTALL DIR TO SPECIFIED USER AND GROUP
-pad "Checking permissions...         "
+pad "Checking permissions"
 sudo chown  $USER:$GROUP $RPIMC_PATH
 success
 
 # DOWNLOAD LATEST BUILD FROM GITHUB
-pad "Downloding git repo...          "
+pad "Downloding git repo"
 wget -q $ZIPURL 
 mv master rPI-media-centre.zip
 success
 
 # EXTRACT FILES TO INSTALL PATH
-pad "Extracting archive...           "
+pad "Extracting archive"
 unzip -qq -o rPI-media-centre.zip -d $RPIMC_PATH
 
 # ORGANISE FILES PROPERLY
