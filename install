@@ -10,10 +10,17 @@
 ###   V A R I A B L E   D E F I N I T I O N S                                  #
 ################################################################################
 
-ZIPURL="https://github.com/alanpich/rPI-media-centre/zipball/master"
+# URL TO rPImc source (github for latest version)
+GITURL="https://github.com/alanpich/rPImc.git"
+
+# Install path for rPImc files
 RPIMC_PATH="/etc/rPImc"
-USER=exec whoami
-GROUP="rpi-mc"
+
+# User to run rPImc under
+USER=`whoami`
+
+# Primary group for rPImc
+GROUP=`id -gn`
 
 
 
@@ -30,13 +37,12 @@ function pad {
 
 # CHECK FOR A PACKAGE, INSTALL IT IF NOT FOUND
 function require {
-	pad "Checking $1"
+	pad "Installing $1"
 	if which $1 >/dev/null; then
 		success
 	else
-		fail
 		# Install quietly without confirmation prompts
-		# sudo apt-get -qy install $1 >/dev/tty1
+		sudo apt-get -qy install $1 >/dev/null && success
 	fi
 }
 
@@ -46,7 +52,7 @@ function fail {	echo -e "\e[01;31mNO\e[00m";}
 function success {	echo -e "\e[00;32mOK\e[00m";}
 
 
-
+export RPIMC_PATH="$RPIMC_PATH"
 
 ################################################################################
 ###   M A I N   I N S T A L L E R   S C R I P T                                #
@@ -63,20 +69,18 @@ echo
 
 # REDUNDANT SUDO COMMAND TO CACHE PASSWORD
 echo " Installation requires root (sudo) privileges."
-echo " Please enter your password"
+echo " Please enter your password if prompted"
 sudo ls >/dev/null
 
 
 # CHECK FOR ALL REQUIRED PACKAGES AND INSTALL ANY MISSING
 echo
-purp " :: CHECKING DEPENDENCIES"
+purp " :: INSTALLING DEPENDENCIES"
 purp " ----------------------------------"
+require git-core
 require apache2
 require php5
-require php5-cli
-require mysql-
 require fusesmb
-require unzip
 echo
 
 # GET NESCESARY FILES AND EXTRACT TO THE CORRECT PLACES 
@@ -85,54 +89,69 @@ purp " ----------------------------------"
 
 # CREATE USER GROUP IF IT DOESNT EXISTS
 pad "Adding group $GROUP"
-TMP=`egrep -i "^$GROUP" /etc/group`
-if [ $TMP = "" ]; then
+if [ `egrep -i "^$GROUP" /etc/group` = "" ]; then
 	sudo groupadd $GROUP
 fi
 success
 
 # CREATE INSTALL DIRECTORY IF IT DOESNT EXIST
-pad "Checking install path"
 if [ ! -e $RPIMC_PATH ]; then
-	sudo mkdir $RPIMC_PATH
+	pad "Installing source"
+	sudo mkdir $RPIMC_PATH >/dev/null &&
+	sudo chown $USER:$GROUP $RPIMC_PATH >/dev/null &&
+	git clone -q $GITURL $RPIMC_PATH && success
+else
+	if [ ! -e $RPIMC_PATH/.git ]; then
+		pad "Installing source"
+		git clone -q $GITURL $RPIMC_PATH >/dev/null && success
+	else 
+		pad "Updating source"
+		git init -q  $RPIMC_PATH >/dev/null &&
+		git fetch -q >/dev/null && success
+	fi
+
 fi
-success
 
-# CHOWN INSTALL DIR TO SPECIFIED USER AND GROUP
-pad "Checking permissions"
-sudo chown  $USER:$GROUP $RPIMC_PATH
-success
 
-# DOWNLOAD LATEST BUILD FROM GITHUB
-pad "Downloding git repo"
-wget -q $ZIPURL 
-mv master rPI-media-centre.zip
-success
-
-# EXTRACT FILES TO INSTALL PATH
-pad "Extracting archive"
-unzip -qq -o rPI-media-centre.zip -d $RPIMC_PATH
-
-# ORGANISE FILES PROPERLY
-DIR=`ls $RPIMC_PATH | sort -n | head -1`
-mv $RPIMC_PATH/$DIR/* $RPIMC_PATH
-rm -rf $RPIMC_PATH/$DIR
-success
-echo
 
 # SET UP APACHE TO SERVE THE CORRECT DIRECTORIES
 purp " :: SETTING UP APACHE (to do)"
 purp " ----------------------------------"
-pad "Setting up envvars" && success
-pad "Setting up sites-available" && success
-pad "Enabling mod_rewrite" && success
-echo
+
+# Generate a sites-available/default file for apache
+pad "Setting up sites-available"
+sudo cp -f $RPIMC_PATH/.install/apache-sites-available-default /etc/apache2/sites-available/default && success
+
+# Generate the envvars file for apache
+pad "Setting up envvars"
+sudo cp -f $RPIMC_PATH/.install/apache-envvars /etc/apache2/envvars && success
+
+# Enable mod_rewrite for apache
+pad "Enabling mod_rewrite" 
+sudo a2enmod -q rewrite >/dev/null && success
+
+# Give a ServerName to stop apache whining
+echo "ServerName rPImc" | sudo tee -a /etc/apache2/httpd.conf >/dev/null
+
+
+
 
 # SET UP USER .profile WITH ALIASES & NETWORK MOUNT
 purp " :: SETTING UP USER ENVIRONMENT (to do)"
 purp " ----------------------------------"
-pad "Adding startup scripts" && success
-pad "Mounting network shares" && success
+pad "Adding startup scripts" 
+echo 'export RPIMC_PATH="'$RPIMC_PATH'"' | sudo tee -a /home/$USER/.profile >/dev/null
+echo "$RPIMC_PATH/rPImc.profile" | sudo tee -a /home/$USER/.profile >/dev/null
+success
+
+# Mount network shares
+pad "Mounting network shares"
+sudo fusesmb $RPIMC_PATH/network -o allow_other nonempty && success
+
+# Enable sound over HDMI
+pad "Enabling HDMI sound"
+sudo modprobe snd_bcm2835 & success
+
 pad "Restarting apache service" 
 sudo service apache2 restart >/dev/null && success
 
