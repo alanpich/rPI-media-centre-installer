@@ -1,0 +1,122 @@
+#!/bin/bash
+# RaspberryPi MediaCentre Installer
+# Author: Alan Pich
+# Website: https://github.com/alanpich
+# Date: 13 June 2012
+# Version 1.0
+
+
+# Variable Definitions
+ZIPURL="https://github.com/alanpich/rPI-media-centre/zipball/master"
+RPIMC_PATH="/etc/rPImc"
+# USER="pi" # Uncomment this to specify user
+USER=exec whoami
+GROUP="rpi-mc"
+
+# Check a required package is installed, else install it from repositories
+function require {
+	echo -n " Checking $1... "
+	if which $1 >/dev/null; then
+		success
+	else
+		echo  'Not Found, installing...'
+		# Install quietly without confirmation prompts
+		# sudo apt-get -qy install $1 >/dev/tty1
+	fi
+}
+
+function purple {
+	echo -e "\e[01;35m$*\e[00m"
+}
+
+
+function error {
+	echo "ERROR: $*"
+	return 1;
+}
+
+function success {
+	echo -e "\e[00;32mOK\e[00m"
+}
+
+
+
+
+# Install Script --------------------------------------------------------------
+clear;
+purple "---------------------------------------------------"
+purple "::             RaspberryPi MediaCenter           ::"
+purple "---------------------------------------------------"
+echo " This script will install all required packages to "
+echo " run a media centre on your rPI and control it via "
+echo " a web interface."
+echo
+# Do a redundant sudo command at beginning to cache password
+echo " Installation requires root (sudo) privileges."
+echo " Please enter your password"
+sudo ls >/dev/null
+
+echo
+purple " :: CHECKING DEPENDENCIES"
+purple " ----------------------------------"
+require apache2
+require php5
+require php5-cli
+require mysql-
+require fusesmb
+require unzip
+echo
+
+# GET NESCESARY FILES AND EXTRACT TO THE CORRECT PLACES 
+purple " :: INSTALLING INTERFACE"
+purple " ----------------------------------"
+# Create group if not exists
+echo -n " Adding group $GROUP...          "
+TMP=`egrep -i "^$GROUP" /etc/group`
+if [ $TMP = "" ]; then
+	sudo groupadd $GROUP
+fi
+success
+# Create directory if not exist
+echo -n " Checking install path...        "
+if [ ! -e $RPIMC_PATH ]; then
+	sudo mkdir $RPIMC_PATH
+fi
+success
+# Chown install dir to specified user and group
+echo -n " Checking permissions...         "
+sudo chown  $USER:$GROUP $RPIMC_PATH
+success
+# Download latest build from github
+echo -n " Downloding git repo...          "
+wget -q $ZIPURL 
+mv master rPI-media-centre.zip
+success
+# Extract files to install path
+echo -n " Extracting archive...           "
+unzip -qq -o rPI-media-centre.zip -d $RPIMC_PATH
+# Organise files properly
+DIR=`ls $RPIMC_PATH | sort -n | head -1`
+mv $RPIMC_PATH/$DIR/* $RPIMC_PATH
+rm -rf $RPIMC_PATH/$DIR
+success
+echo
+
+# SET UP APACHE TO SERVE THE CORRECT DIRECTORIES
+purple " :: SETTING UP APACHE (to do)"
+purple " ----------------------------------"
+echo -n " Setting up envvars...           " && success
+echo -n " Setting up sites-available...   " && success
+echo -n " Enabling mod_rewrite...         " && success
+echo
+
+# SET UP USER .profile WITH ALIASES & NETWORK MOUNT
+purple " :: SETTING UP USER ENVIRONMENT (to do)"
+purple " ----------------------------------"
+echo -n " Adding startup scripts...       " && success
+echo -n " Mounting network shares...      " && success
+echo -n " Restarting apache service...    " 
+sudo service apache2 restart >/dev/null && success
+
+
+echo
