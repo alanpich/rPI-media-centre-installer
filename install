@@ -22,9 +22,15 @@ GROUP="rpi-mc"
 ###   U S E F U L   F U N C T I O N S                                          #
 ################################################################################
 
+# PAD A STRING TO 
+function pad {
+	echo -n "  "$1"..." | sed -e :a -e 's/^.\{1,32\}$/& /;ta'
+} 
+
+
 # CHECK FOR A PACKAGE, INSTALL IT IF NOT FOUND
 function require {
-	echo -n " Checking $1... "
+	pad "Checking $1"
 	if which $1 >/dev/null; then
 		success
 	else
@@ -78,7 +84,7 @@ purp " :: INSTALLING INTERFACE"
 purp " ----------------------------------"
 
 # CREATE USER GROUP IF IT DOESNT EXISTS
-echo -n " Adding group $GROUP...          "
+pad "Adding group $GROUP...          "
 TMP=`egrep -i "^$GROUP" /etc/group`
 if [ $TMP = "" ]; then
 	sudo groupadd $GROUP
@@ -86,25 +92,25 @@ fi
 success
 
 # CREATE INSTALL DIRECTORY IF IT DOESNT EXIST
-echo -n " Checking install path...        "
+pad "Checking install path...        "
 if [ ! -e $RPIMC_PATH ]; then
 	sudo mkdir $RPIMC_PATH
 fi
 success
 
 # CHOWN INSTALL DIR TO SPECIFIED USER AND GROUP
-echo -n " Checking permissions...         "
+pad "Checking permissions...         "
 sudo chown  $USER:$GROUP $RPIMC_PATH
 success
 
 # DOWNLOAD LATEST BUILD FROM GITHUB
-echo -n " Downloding git repo...          "
+pad "Downloding git repo...          "
 wget -q $ZIPURL 
 mv master rPI-media-centre.zip
 success
 
 # EXTRACT FILES TO INSTALL PATH
-echo -n " Extracting archive...           "
+pad "Extracting archive...           "
 unzip -qq -o rPI-media-centre.zip -d $RPIMC_PATH
 
 # ORGANISE FILES PROPERLY
@@ -117,17 +123,17 @@ echo
 # SET UP APACHE TO SERVE THE CORRECT DIRECTORIES
 purp " :: SETTING UP APACHE (to do)"
 purp " ----------------------------------"
-echo -n " Setting up envvars...           " && success
-echo -n " Setting up sites-available...   " && success
-echo -n " Enabling mod_rewrite...         " && success
+pad "Setting up envvars" && success
+pad "Setting up sites-available" && success
+pad "Enabling mod_rewrite" && success
 echo
 
 # SET UP USER .profile WITH ALIASES & NETWORK MOUNT
 purp " :: SETTING UP USER ENVIRONMENT (to do)"
 purp " ----------------------------------"
-echo -n " Adding startup scripts...       " && success
-echo -n " Mounting network shares...      " && success
-echo -n " Restarting apache service...    " 
+pad "Adding startup scripts" && success
+pad "Mounting network shares" && success
+pad "Restarting apache service" 
 sudo service apache2 restart >/dev/null && success
 
 
