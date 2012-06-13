@@ -6,13 +6,21 @@
 # Version 1.0
 
 
-# VARIABLE DEFINITIONS
+################################################################################
+###   V A R I A B L E   D E F I N I T I O N S                                  #
+################################################################################
+
 ZIPURL="https://github.com/alanpich/rPI-media-centre/zipball/master"
 RPIMC_PATH="/etc/rPImc"
 USER=exec whoami
 GROUP="rpi-mc"
 
 
+
+
+################################################################################
+###   U S E F U L   F U N C T I O N S                                          #
+################################################################################
 
 # CHECK FOR A PACKAGE, INSTALL IT IF NOT FOUND
 function require {
@@ -27,26 +35,21 @@ function require {
 }
 
 # COLOURED OUTPUT 
-function purple {
-	echo -e "\e[01;35m$*\e[00m"
-}
-
-function fail {
-	echo -e "\e[00;31mNO\e[00m"
-}
-
-function success {
-	echo -e "\e[00;32mOK\e[00m"
-}
+function purp {	echo -e "\e[01;35m$*\e[00m" ;}
+function fail {	echo -e "\e[00;31mNO\e[00m";}
+function success {	echo -e "\e[00;32mOK\e[00m";}
 
 
 
 
-# Install Script --------------------------------------------------------------
+################################################################################
+###   M A I N   I N S T A L L E R   S C R I P T                                #
+################################################################################
+
 clear;
-purple "---------------------------------------------------"
-purple "::             RaspberryPi MediaCenter           ::"
-purple "---------------------------------------------------"
+purp "---------------------------------------------------"
+purp "::             RaspberryPi MediaCenter           ::"
+purp "---------------------------------------------------"
 echo " This script will install all required packages to "
 echo " run a media centre on your rPI and control it via "
 echo " a web interface."
@@ -60,8 +63,8 @@ sudo ls >/dev/null
 
 # CHECK FOR ALL REQUIRED PACKAGES AND INSTALL ANY MISSING
 echo
-purple " :: CHECKING DEPENDENCIES"
-purple " ----------------------------------"
+purp " :: CHECKING DEPENDENCIES"
+purp " ----------------------------------"
 require apache2
 require php5
 require php5-cli
@@ -71,8 +74,8 @@ require unzip
 echo
 
 # GET NESCESARY FILES AND EXTRACT TO THE CORRECT PLACES 
-purple " :: INSTALLING INTERFACE"
-purple " ----------------------------------"
+purp " :: INSTALLING INTERFACE"
+purp " ----------------------------------"
 
 # CREATE USER GROUP IF IT DOESNT EXISTS
 echo -n " Adding group $GROUP...          "
@@ -112,16 +115,16 @@ success
 echo
 
 # SET UP APACHE TO SERVE THE CORRECT DIRECTORIES
-purple " :: SETTING UP APACHE (to do)"
-purple " ----------------------------------"
+purp " :: SETTING UP APACHE (to do)"
+purp " ----------------------------------"
 echo -n " Setting up envvars...           " && success
 echo -n " Setting up sites-available...   " && success
 echo -n " Enabling mod_rewrite...         " && success
 echo
 
 # SET UP USER .profile WITH ALIASES & NETWORK MOUNT
-purple " :: SETTING UP USER ENVIRONMENT (to do)"
-purple " ----------------------------------"
+purp " :: SETTING UP USER ENVIRONMENT (to do)"
+purp " ----------------------------------"
 echo -n " Adding startup scripts...       " && success
 echo -n " Mounting network shares...      " && success
 echo -n " Restarting apache service...    " 
